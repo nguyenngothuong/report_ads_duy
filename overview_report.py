@@ -57,7 +57,7 @@ def show_time_series_chart(filtered_df):
     
     if date_range > 30:
         # Nhóm dữ liệu theo tháng
-        monthly_df = filtered_df.resample('ME', on='day').sum().reset_index()
+        monthly_df = filtered_df.resample('M', on='day').sum().reset_index()
         
         # Tạo biểu đồ đường
         fig1 = px.line(monthly_df, x='day', y=['spend', 'revenue', 'profit', 'net_profit'], 
