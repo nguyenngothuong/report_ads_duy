@@ -10,6 +10,7 @@ def show_overview_report(df):
     time_filter = st.selectbox('Chọn khoảng thời gian', 
                                ['7 ngày qua', '30 ngày qua', '6 tháng qua', '1 năm qua', 'Tùy chỉnh'])
 
+    df['day'] = pd.to_datetime(df['day'])
     end_date = df['day'].max()
     if time_filter == '7 ngày qua':
         start_date = end_date - timedelta(days=6)
