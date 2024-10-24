@@ -20,8 +20,10 @@ def show_overview_report(df):
     elif time_filter == '1 năm qua':
         start_date = end_date - timedelta(days=365)
     else:
-        start_date = st.date_input('Ngày bắt đầu', min(df['day']))
-        end_date = st.date_input('Ngày kết thúc', max(df['day']))
+        # Chuyển đổi day về datetime trước khi lấy min/max
+        df['day'] = pd.to_datetime(df['day'])
+        start_date = st.date_input('Ngày bắt đầu', min(df['day']).date())
+        end_date = st.date_input('Ngày kết thúc', max(df['day']).date())
 
     # Chuyển đổi start_date và end_date thành Timestamp
     start_date = pd.Timestamp(start_date)

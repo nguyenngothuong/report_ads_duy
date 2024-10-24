@@ -17,7 +17,7 @@ def show_data_entry():
 
 def is_valid_date(date_string):
     try:
-        datetime.strptime(date_string, '%d/%m/%y')
+        datetime.strptime(date_string, '%Y-%m-%d')
         return True
     except ValueError:
         return False
@@ -27,7 +27,7 @@ def show_spend_form():
     
     st.info("""
     Hướng dẫn nhập liệu:
-    - Ngày: Nhập theo định dạng dd/mm/yy (ví dụ: 01/02/24)
+    - Ngày: Nhập theo định dạng yyyy-mm-dd (ví dụ: 2024-02-01)
     - AD_NAME: Tên quảng cáo
     - Chi phí: Số tiền chi cho quảng cáo
     """)
@@ -44,7 +44,7 @@ def show_spend_form():
         st.session_state.spend_data,
         num_rows="dynamic",
         column_config={
-            "day": st.column_config.TextColumn("Ngày (dd/mm/yy)"),
+            "day": st.column_config.TextColumn("Ngày (yyyy-mm-dd)"),
             "ad_name": st.column_config.TextColumn("AD_NAME"),
             "spend": st.column_config.NumberColumn("Chi phí", min_value=0.0, format="%.2f")
         }
@@ -61,18 +61,20 @@ def show_spend_form():
                     invalid_dates.append(index + 1)
         
         if invalid_dates:
-            st.error(f"Ngày không hợp lệ ở (các) dòng: {', '.join(map(str, invalid_dates))}. Vui lòng nhập ngày theo định dạng dd/mm/yy.")
+            st.error(f"Ngày không hợp lệ ở (các) dòng: {', '.join(map(str, invalid_dates))}. Vui lòng nhập ngày theo định dạng yyyy-mm-dd.")
         else:
             for _, row in edited_df.iterrows():
                 if row["day"] and row["ad_name"] and row["spend"]:
-                    save_spend_data(row["day"], row["ad_name"], row["spend"])
+                    date = datetime.strptime(row["day"], '%Y-%m-%d')
+                    save_spend_data(date, row["ad_name"], row["spend"])
             st.success("Đã lưu dữ liệu chi phí thành công!")
+
 def show_revenue_form():
     st.subheader("Nhập dữ liệu doanh thu")
     
     st.info("""
     Hướng dẫn nhập liệu:
-    - Ngày: Nhập theo định dạng dd/mm/yy (ví dụ: 01/02/24)
+    - Ngày: Nhập theo định dạng yyyy-mm-dd (ví dụ: 2024-02-01)
     - SUBID1, SUBID2: Thông tin định danh quảng cáo (bắt buộc)
     - SUBID3: Thông tin bổ sung (không bắt buộc)
     - Doanh thu: Số tiền thu được
@@ -91,7 +93,7 @@ def show_revenue_form():
         st.session_state.revenue_data,
         num_rows="dynamic",
         column_config={
-            "day": st.column_config.TextColumn("Ngày (dd/mm/yy)"),
+            "day": st.column_config.TextColumn("Ngày (yyyy-mm-dd)"),
             "subid1": st.column_config.TextColumn("SUBID1"),
             "subid2": st.column_config.TextColumn("SUBID2"), 
             "subid3": st.column_config.TextColumn("SUBID3"),
@@ -115,21 +117,24 @@ def show_revenue_form():
         if empty_fields:
             st.error(f"Các trường bắt buộc (Ngày, SUBID1, SUBID2, Doanh thu) không được để trống ở (các) dòng: {', '.join(map(str, empty_fields))}.")
         elif invalid_dates:
-            st.error(f"Ngày không hợp lệ ở (các) dòng: {', '.join(map(str, invalid_dates))}. Vui lòng nhập ngày theo định dạng dd/mm/yy.")
+            st.error(f"Ngày không hợp lệ ở (các) dòng: {', '.join(map(str, invalid_dates))}. Vui lòng nhập ngày theo định dạng yyyy-mm-dd.")
         else:
             for _, row in edited_df.iterrows():
                 if all([row["day"], row["subid1"], row["subid2"], row["revenue"]]):
                     # Tạo ad_name khi lưu dữ liệu
                     ad_name = f"{row['subid1']}-{row['subid2']}"
-                    save_revenue_data(row["day"], row["subid1"], row["subid2"], row["subid3"], row["revenue"], ad_name)
+                    date = datetime.strptime(row["day"], '%Y-%m-%d')
+                    save_revenue_data(date, row["subid1"], row["subid2"], row["subid3"], row["revenue"], ad_name)
             st.success("Đã lưu dữ liệu doanh thu thành công!")
 
 def show_current_data():
     st.subheader("Dữ liệu hiện tại")
     
+    days = st.number_input("Số ngày muốn hiển thị", min_value=1, value=30, step=1)
+    
     if st.button("Tải lại dữ liệu"):
         st.cache_data.clear()
-        st.success("Đã tải lại dữ liệu thành công!")
+        st.success(f"Đã tải lại dữ liệu {days} ngày gần nhất thành công!")
     
-    df = get_data()
+    df = get_data(days=days)  # Lấy dữ liệu theo số ngày được chọn
     st.dataframe(df)
