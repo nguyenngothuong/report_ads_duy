@@ -1,0 +1,40 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+env/
+.env
+
+# Streamlit
+.streamlit/
+
+# Database
+*.db
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Sensitive information
+secret.toml
+
+# Temporary files
+*.tmp
+
+# Data files
+*.csv
+*.json
+
+# Jupyter Notebook
+.ipynb_checkpoints

@@ -1,0 +1,84 @@
+Các cột và kiểu dữ liệu trong bảng spend_table:
+- id: int64
+- day: object
+- ad_name: object
+- spend: float64
+- created_at: object
+- updated_at: object
+
+Các cột và kiểu dữ liệu trong bảng revenue_table:
+- id: int64
+- day: object
+- subid1: object
+- subid2: object
+- subid3: object
+- revenue: float64
+- ad_name: object
+- created_at: object
+- updated_at: object
+
+Dữ liệu mẫu từ bảng spend_table:
+   id       day                    ad_name     spend                        created_at                        updated_at
+0   1  01/01/24  BeyeuCM-3Dodungchobe2806-  36688.42  2024-10-24T16:41:24.536089+00:00  2024-10-24T16:41:24.536089+00:00
+1   2  01/01/24  BeyeuCM-4Dodungchobe2806-  38879.91  2024-10-24T16:41:24.536089+00:00  2024-10-24T16:41:24.536089+00:00
+2   3  01/01/24  BeyeuCM-5Dodungchobe2806-  20046.04  2024-10-24T16:41:24.536089+00:00  2024-10-24T16:41:24.536089+00:00
+3   4  02/01/24  BeyeuCM-3Dodungchobe2806-  39775.31  2024-10-24T16:41:24.536089+00:00  2024-10-24T16:41:24.536089+00:00
+4   5  02/01/24  BeyeuCM-4Dodungchobe2806-  20522.69  2024-10-24T16:41:24.536089+00:00  2024-10-24T16:41:24.536089+00:00
+
+Dữ liệu mẫu từ bảng revenue_table:
+   id       day   subid1            subid2 subid3   revenue                       ad_name                        created_at                        updated_at
+0   1  01/01/24  BeyeuCM  3Dodungchobe2806    T11  70400.52  BeyeuCM-3Dodungchobe2806-T11  2024-10-24T16:41:24.536089+00:00  2024-10-24T16:41:24.536089+00:00
+1   2  01/01/24  BeyeuCM  4Dodungchobe2806     T6  80983.64   BeyeuCM-4Dodungchobe2806-T6  2024-10-24T16:41:24.536089+00:00  2024-10-24T16:41:24.536089+00:00
+2   3  01/01/24  BeyeuCM  5Dodungchobe2806     T8  52481.03   BeyeuCM-5Dodungchobe2806-T8  2024-10-24T16:41:24.536089+00:00  2024-10-24T16:41:24.536089+00:00
+3   4  02/01/24  BeyeuCM  3Dodungchobe2806    T12  81593.07  BeyeuCM-3Dodungchobe2806-T12  2024-10-24T16:41:24.536089+00:00  2024-10-24T16:41:24.536089+00:00
+4   5  02/01/24  BeyeuCM  4Dodungchobe2806     T9  65304.42   BeyeuCM-4Dodungchobe2806-T9  2024-10-24T16:41:24.536089+00:00  2024-10-24T16:41:24.536089+00:00
+
+Thông tin chi tiết về cấu trúc bảng spend_table:
+- id:
+  Kiểu dữ liệu: int64
+  Cho phép NULL: Không
+- day:
+  Kiểu dữ liệu: object
+  Cho phép NULL: Không
+- ad_name:
+  Kiểu dữ liệu: object
+  Cho phép NULL: Không
+- spend:
+  Kiểu dữ liệu: float64
+  Cho phép NULL: Không
+- created_at:
+  Kiểu dữ liệu: object
+  Cho phép NULL: Không
+- updated_at:
+  Kiểu dữ liệu: object
+  Cho phép NULL: Không
+
+Thông tin chi tiết về cấu trúc bảng revenue_table:
+- id:
+  Kiểu dữ liệu: int64
+  Cho phép NULL: Không
+- day:
+  Kiểu dữ liệu: object
+  Cho phép NULL: Không
+- subid1:
+  Kiểu dữ liệu: object
+  Cho phép NULL: Không
+- subid2:
+  Kiểu dữ liệu: object
+  Cho phép NULL: Không
+- subid3:
+  Kiểu dữ liệu: object
+  Cho phép NULL: Không
+- revenue:
+  Kiểu dữ liệu: float64
+  Cho phép NULL: Không
+- ad_name:
+  Kiểu dữ liệu: object
+  Cho phép NULL: Không
+- created_at:
+  Kiểu dữ liệu: object
+  Cho phép NULL: Không
+- updated_at:
+  Kiểu dữ liệu: object
+  Cho phép NULL: Không
+

@@ -1,0 +1,80 @@
+thử cho tôi code python tạo sample mẫu data như vậy cho 2 table
+
+từ 01/01/2024 đến ngày hôm nay
+
+data lưu vào sqlite
+
+sau đó dùng streamlit để trực quan hóa báo cáo theo từng ad_name
+
+báo cáo tổng quan lời lỗ, chi phí
+
+thuế 7% trên doanh thu (mặc định)
+
+
+phân tích cách join và lựa chọn key phù hợp:
+
+1. Phân tích cấu trúc dữ liệu hiện tại:
+Bảng Chi phí (Spend):
+- Các trường: DAY, AD_NAME, Spend
+- Ví dụ: "1/10/24", "BeyeuCM-3Dodungchobe2806-", 32061
+
+Bảng Doanh thu (Revenue): 
+- Các trường: DAY, SUBID1, SUBID2, SUBID3, Revenue, AD_NAME
+- Ví dụ: "1/10/24", "BeyeuCM", "3Dodungchobe2806", "T10", 86448, "BeyeuCM-3Dodungchobe2806-T10"
+
+2. Phân tích key để join:
+
+a) Sử dụng chỉ DAY:
+- Không phù hợp vì một ngày có thể có nhiều ad_name khác nhau
+- Sẽ gây ra duplicated data khi join
+
+b) Sử dụng chỉ AD_NAME:
+- Chưa phù hợp vì:
+  + Một ad_name có thể xuất hiện nhiều ngày
+  + AD_NAME ở 2 bảng đang không hoàn toàn giống nhau (một bên có "-T10", một bên không)
+
+c) Sử dụng composite key (DAY + AD_NAME):
+- Đây là lựa chọn phù hợp nhất vì:
+  + Mỗi cặp DAY + AD_NAME sẽ unique
+  + Đảm bảo join chính xác theo từng ngày và từng chiến dịch
+- Tuy nhiên cần xử lý vấn đề về AD_NAME không khớp nhau
+
+3. Đề xuất giải pháp:
+
+```sql
+-- Cách 1: Join trực tiếp sau khi chuẩn hóa AD_NAME
+SELECT 
+    s.DAY,
+    s.AD_NAME,
+    s.Spend,
+    r.Revenue,
+    r.SUBID_1,
+    r.SUBID_2,
+    r.SUBID_3
+FROM spend_table s
+LEFT JOIN revenue_table r 
+    ON s.DAY = r.DAY 
+    AND REPLACE(r.AD_NAME, '-T10', '-') = s.AD_NAME
+
+-- Cách 2: Tạo một surrogate key mới
+ALTER TABLE spend_table 
+ADD COLUMN report_key VARCHAR(50) 
+GENERATED ALWAYS AS (CONCAT(DAY, '_', AD_NAME)) STORED;
+
+ALTER TABLE revenue_table 
+ADD COLUMN report_key VARCHAR(50) 
+GENERATED ALWAYS AS (CONCAT(DAY, '_', REPLACE(AD_NAME, '-T10', '-'))) STORED;
+```
+
+4. Ưu điểm của giải pháp này:
+- Đảm bảo tính unique của data
+- Dễ dàng track được chi phí và doanh thu theo ngày
+- Có thể mở rộng thêm các metrics khác
+- Dễ dàng phát hiện anomaly (ví dụ: có spend nhưng không có revenue hoặc ngược lại)
+
+5. Lưu ý khi implement:
+- Cần chuẩn hóa format của AD_NAME giữa 2 bảng
+- Nên thêm index cho composite key để tối ưu performance
+- Có thể cân nhắc thêm các validation rules để đảm bảo data quality
+
+Bạn nghĩ sao về giải pháp này? Bạn có cần tôi giải thích thêm phần nào không?
