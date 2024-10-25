@@ -4,45 +4,15 @@ import plotly.express as px
 from datetime import timedelta
 from utils import calculate_growth
 import plotly.graph_objects as go
+from guides import OVERVIEW_GUIDE, CHART_GUIDE
+
 def show_overview_report(df):
     st.header('Báo cáo tổng quan')
     
     # Thêm checkbox cho hướng dẫn sử dụng
     if st.checkbox('Hiển thị hướng dẫn sử dụng', False, key='overview_guide'):
-        st.info("""
-        ### 📌 Hướng dẫn sử dụng báo cáo tổng quan
-        
-        1. **Chọn khoảng thời gian:**
-           - Sử dụng dropdown để chọn khoảng thời gian phân tích
-           - Có các tùy chọn: 7 ngày, 30 ngày, 6 tháng, 1 năm
-           - Chọn "Tùy chỉnh" để tự chọn khoảng thời gian mong muốn
-        
-        2. **Đọc hiểu các chỉ số tổng quan:**
-           - 🔴 Tổng chi phí: Tổng số tiền đã chi cho quảng cáo
-           - 🟢 Tổng doanh thu: Tổng số tiền thu được
-           - 🔵 Tổng lợi nhuận: Doanh thu trừ chi phí
-           - 🟣 Lợi nhuận ròng: Lợi nhuận sau khi trừ thuế (7%)
-           
-        3. **Biểu đồ theo thời gian:**
-           - Với dữ liệu > 30 ngày:
-             * Biểu đồ đường: Xem xu hướng thay đổi
-             * Biểu đồ cột: So sánh giá trị theo tháng
-             * Biểu đồ area: Xem tỷ trọng các chỉ số
-           - Với dữ liệu ≤ 30 ngày:
-             * Biểu đồ kết hợp đường và cột
-             * Đường: Chi phí và doanh thu
-             * Cột: Lợi nhuận và lợi nhuận ròng
-        
-        4. **Phân tích số liệu:**
-           - Mũi tên ⬆️ màu xanh: Chỉ số tăng so với kỳ trước
-           - Mũi tên ⬇️ màu đỏ: Chỉ số giảm so với kỳ trước
-           - % thể hiện mức độ tăng/giảm
-        
-        5. **Lưu ý quan trọng:**
-           - Chi phí tăng (màu đỏ) không phải lúc nào cũng là dấu hiệu xấu
-           - Cần xem xét đồng thời với doanh thu và lợi nhuận
-           - Tập trung vào ROI và lợi nhuận ròng để đánh giá hiệu quả
-        """)
+        st.info(OVERVIEW_GUIDE)
+        st.info(CHART_GUIDE)
     
     time_filter = st.selectbox('Chọn khoảng thời gian', 
                                ['7 ngày qua', '30 ngày qua', '6 tháng qua', '1 năm qua', 'Tùy chỉnh'])

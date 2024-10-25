@@ -2,48 +2,14 @@ import streamlit as st
 import pandas as pd
 from database import save_spend_data, save_revenue_data, get_data, remove_spend_data, remove_revenue_data
 from datetime import datetime
+from guides import DATA_ENTRY_GUIDE
 
 def show_data_entry():
     st.header('Nhập dữ liệu')
     
     # Thêm checkbox cho hướng dẫn sử dụng
     if st.checkbox('Hiển thị hướng dẫn sử dụng', False, key='data_entry_guide'):
-        st.info("""
-        ### 📌 Hướng dẫn nhập liệu
-        
-        1. **Chọn loại dữ liệu:**
-           - Chi phí (Spend): Nhập dữ liệu chi phí quảng cáo
-           - Doanh thu (Revenue): Nhập dữ liệu doanh thu
-        
-        2. **Nhập dữ liệu chi phí:**
-           - Ngày (yyyy-mm-dd): Ví dụ 2024-02-01
-           - AD_NAME: Tên quảng cáo (phải khớp với định dạng)
-           - Chi phí: Số tiền chi cho quảng cáo
-        
-        3. **Nhập dữ liệu doanh thu:**
-           - Ngày (yyyy-mm-dd): Ví dụ 2024-02-01
-           - SUBID1: Mã định danh cấp 1 (bắt buộc)
-           - SUBID2: Mã định danh cấp 2 (bắt buộc)
-           - SUBID3: Mã định danh cấp 3 (tùy chọn)
-           - Doanh thu: Số tiền thu được
-           - AD_NAME: Tự động tạo từ SUBID1 và SUBID2
-        
-        4. **Các tính năng hỗ trợ:**
-           - Thêm dòng: Click nút + ở cuối bảng
-           - Xóa dòng: Click nút X bên phải dòng
-           - Tải lại dữ liệu: Cập nhật dữ liệu mới nhất
-        
-        5. **Lưu ý quan trọng:**
-           - Định dạng ngày phải chính xác (yyyy-mm-dd)
-           - Không được để trống các trường bắt buộc
-           - Kiểm tra kỹ dữ liệu trước khi lưu
-           - Có thể xem lại dữ liệu đã nhập ở bảng bên dưới
-        
-        6. **Xử lý lỗi:**
-           - Nếu có lỗi, hệ thống sẽ hiển thị thông báo
-           - Kiểm tra và sửa các lỗi trước khi lưu lại
-           - Liên hệ admin nếu gặp lỗi không xác định
-        """)
+        st.info(DATA_ENTRY_GUIDE)
     
     table_choice = st.radio("Chọn bảng để nhập dữ liệu", ("Chi phí (Spend)", "Doanh thu (Revenue)"))
     

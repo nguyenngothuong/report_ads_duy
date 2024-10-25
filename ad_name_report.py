@@ -4,40 +4,14 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import timedelta
 from utils import calculate_growth, calculate_metrics_with_growth
+from guides import AD_NAME_GUIDE
 
 def show_ad_name_report(df):
     st.header('Báo cáo theo AD_NAME')
 
     # Thêm checkbox cho hướng dẫn sử dụng
     if st.checkbox('Hiển thị hướng dẫn sử dụng', False):
-        st.info("""
-        ### 📌 Hướng dẫn sử dụng báo cáo theo AD_NAME
-        
-        1. **Bộ lọc chung:**
-           - Sử dụng bộ lọc SUBID1, SUBID2, SUBID3 để lọc dữ liệu theo từng cấp độ
-           - Chọn "Tất cả" để xem toàn bộ dữ liệu
-        
-        2. **Biểu đồ tổng quan:**
-           - Chọn bộ lọc để xem top AD_NAME theo các tiêu chí khác nhau
-           - Sử dụng thanh trượt để lọc theo khoảng Revenue
-           - Tìm kiếm AD_NAME cụ thể bằng ô tìm kiếm
-        
-        3. **Báo cáo chi tiết:**
-           - Chọn AD_NAME cụ thể để xem chi tiết
-           - Chọn khoảng thời gian phân tích
-           - Xem biểu đồ theo thời gian và bảng phân tích chi tiết
-        
-        4. **Đọc hiểu biểu đồ:**
-           - 🔴 Đường đỏ: Chi phí
-           - 🟢 Đường xanh lá: Doanh thu
-           - 🔵 Cột xanh dương: Lợi nhuận
-           - 🟣 Cột tím: Lợi nhuận ròng
-        
-        5. **Bảng phân tích chi tiết:**
-           - Xem số liệu và tăng trưởng theo từng khoảng thời gian
-           - Các chỉ số tăng trưởng dương (+) thể hiện sự cải thiện
-           - Các chỉ số tăng trưởng âm (-) cần được chú ý và có biện pháp cải thiện
-        """)
+        st.info(AD_NAME_GUIDE)
 
     # Thêm filter theo subid3, subid2, subid1 cho phần tổng quan
     col1, col2, col3 = st.columns(3)
