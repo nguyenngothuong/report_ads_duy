@@ -8,6 +8,37 @@ from utils import calculate_growth, calculate_metrics_with_growth
 def show_ad_name_report(df):
     st.header('Báo cáo theo AD_NAME')
 
+    # Thêm checkbox cho hướng dẫn sử dụng
+    if st.checkbox('Hiển thị hướng dẫn sử dụng', False):
+        st.info("""
+        ### 📌 Hướng dẫn sử dụng báo cáo theo AD_NAME
+        
+        1. **Bộ lọc chung:**
+           - Sử dụng bộ lọc SUBID1, SUBID2, SUBID3 để lọc dữ liệu theo từng cấp độ
+           - Chọn "Tất cả" để xem toàn bộ dữ liệu
+        
+        2. **Biểu đồ tổng quan:**
+           - Chọn bộ lọc để xem top AD_NAME theo các tiêu chí khác nhau
+           - Sử dụng thanh trượt để lọc theo khoảng Revenue
+           - Tìm kiếm AD_NAME cụ thể bằng ô tìm kiếm
+        
+        3. **Báo cáo chi tiết:**
+           - Chọn AD_NAME cụ thể để xem chi tiết
+           - Chọn khoảng thời gian phân tích
+           - Xem biểu đồ theo thời gian và bảng phân tích chi tiết
+        
+        4. **Đọc hiểu biểu đồ:**
+           - 🔴 Đường đỏ: Chi phí
+           - 🟢 Đường xanh lá: Doanh thu
+           - 🔵 Cột xanh dương: Lợi nhuận
+           - 🟣 Cột tím: Lợi nhuận ròng
+        
+        5. **Bảng phân tích chi tiết:**
+           - Xem số liệu và tăng trưởng theo từng khoảng thời gian
+           - Các chỉ số tăng trưởng dương (+) thể hiện sự cải thiện
+           - Các chỉ số tăng trưởng âm (-) cần được chú ý và có biện pháp cải thiện
+        """)
+
     # Thêm filter theo subid3, subid2, subid1 cho phần tổng quan
     col1, col2, col3 = st.columns(3)
     with col3:
@@ -243,9 +274,24 @@ def show_ad_time_series_chart(ad_df, selected_ad_name):
         monthly_df = ad_df.resample('M', on='day').sum().reset_index()
         
         fig1 = px.line(monthly_df, x='day', y=['spend', 'revenue', 'profit', 'net_profit'], 
-                      title=f'Chỉ số theo tháng cho {selected_ad_name} (Biểu đồ đường)', line_shape='spline')
-        fig1.update_xaxes(title_text='Tháng')
-        fig1.update_yaxes(title_text='Giá trị')
+                      title=f'Chỉ số theo tháng cho {selected_ad_name} (Biểu đồ đường)', 
+                      line_shape='spline',
+                      labels={
+                          'spend': 'Chi phí',
+                          'revenue': 'Doanh thu',
+                          'profit': 'Lợi nhuận',
+                          'net_profit': 'Lợi nhuận ròng',
+                          'day': 'Tháng',
+                          'value': 'Giá trị'
+                      })
+        fig1.update_traces(textposition="top center")
+        fig1.update_layout(legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ))
         st.plotly_chart(fig1, use_container_width=True)
         
         fig2 = px.bar(monthly_df, x='day', y=['spend', 'revenue', 'profit', 'net_profit'],
@@ -262,24 +308,71 @@ def show_ad_time_series_chart(ad_df, selected_ad_name):
     else:
         fig = go.Figure()
 
-        fig.add_trace(go.Scatter(x=ad_df['day'], y=ad_df['spend'], name='Chi phí', line=dict(color='red', width=2)))
-        fig.add_trace(go.Scatter(x=ad_df['day'], y=ad_df['revenue'], name='Doanh thu', line=dict(color='green', width=2)))
-        fig.add_trace(go.Bar(x=ad_df['day'], y=ad_df['profit'], name='Lợi nhuận', marker_color='blue', opacity=0.7))
-        fig.add_trace(go.Bar(x=ad_df['day'], y=ad_df['net_profit'], name='Lợi nhuận ròng', marker_color='purple', opacity=0.7))
+        # Thêm đường cho spend và revenue với label
+        fig.add_trace(go.Scatter(
+            x=ad_df['day'], 
+            y=ad_df['spend'], 
+            name='Chi phí', 
+            line=dict(color='red', width=2),
+            text=ad_df['spend'].apply(lambda x: f'{x:,.0f}đ'),
+            textposition='top center'
+        ))
+        fig.add_trace(go.Scatter(
+            x=ad_df['day'], 
+            y=ad_df['revenue'], 
+            name='Doanh thu', 
+            line=dict(color='green', width=2),
+            text=ad_df['revenue'].apply(lambda x: f'{x:,.0f}đ'),
+            textposition='top center'
+        ))
 
+        # Thêm cột cho profit và net_profit với label
+        fig.add_trace(go.Bar(
+            x=ad_df['day'], 
+            y=ad_df['profit'], 
+            name='Lợi nhuận', 
+            marker_color='blue', 
+            opacity=0.7,
+            text=ad_df['profit'].apply(lambda x: f'{x:,.0f}đ'),
+            textposition='outside'
+        ))
+        fig.add_trace(go.Bar(
+            x=ad_df['day'], 
+            y=ad_df['net_profit'], 
+            name='Lợi nhuận ròng', 
+            marker_color='purple', 
+            opacity=0.7,
+            text=ad_df['net_profit'].apply(lambda x: f'{x:,.0f}đ'),
+            textposition='outside'
+        ))
+
+        # Cập nhật layout
         fig.update_layout(
             title=f'Chỉ số theo thời gian cho {selected_ad_name}',
             xaxis_title='Ngày',
             yaxis_title='Giá trị',
             barmode='group',
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            ),
+            # Thêm margin để đảm bảo label không bị cắt
+            margin=dict(t=150)
         )
 
         st.plotly_chart(fig, use_container_width=True)
 
-        st.info('Biểu đồ trên kết hợp đường và cột để thể hiện sự thay đổi theo thời gian. '
-                'Đường màu đỏ thể hiện chi phí, đường màu xanh lá thể hiện doanh thu. '
-                'Cột màu xanh dương thể hiện lợi nhuận, cột màu tím thể hiện lợi nhuận ròng.')
+        # Thêm chú thích với emoji
+        st.info("""
+        🔍 **Hướng dẫn đọc biểu đồ:**
+        - 🔴 Đường đỏ: Chi phí quảng cáo
+        - 🟢 Đường xanh lá: Doanh thu
+        - 🔵 Cột xanh dương: Lợi nhuận (Doanh thu - Chi phí)
+        - 🟣 Cột tím: Lợi nhuận ròng (Lợi nhuận - Thuế)
+        """)
 
 def show_pivot_table(df):
     st.subheader('Bảng phân tích chi tiết')
