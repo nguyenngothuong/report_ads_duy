@@ -189,35 +189,79 @@ def show_ad_name_chart(df):
         st.warning("Không có dữ liệu phù hợp với bộ lọc đã chọn")
         return
     
-    # Tạo biểu đồ ngang
-    fig = px.bar(display_df, y='ad_name', x=['spend', 'revenue', 'profit', 'net_profit'],
-                 title=title,
-                 barmode='group',
-                 orientation='h')
-    
-    fig.update_layout(
-        yaxis_title="AD_NAME",
-        xaxis_title="Giá trị",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
-    
+    # Hiển thị dữ liệu dưới dạng bảng nếu số lượng AD_NAME > 10
+    if len(display_df) > 10:
+        st.dataframe(display_df.style.format({
+            'spend': '{:,.0f}',
+            'revenue': '{:,.0f}',
+            'profit': '{:,.0f}',
+            'net_profit': '{:,.0f}'
+        }), use_container_width=True)
+    else:
+        # Tạo biểu đồ ngang
+        fig = px.bar(display_df, y='ad_name', x=['spend', 'revenue', 'profit', 'net_profit'],
+                     title=title,
+                     barmode='group',
+                     orientation='h',
+                     text='value')
+        
+        fig.update_traces(texttemplate='%{text:,.0f}', textposition='outside')
+        
+        fig.update_layout(
+            yaxis_title="AD_NAME",
+            xaxis_title="Giá trị",
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        )
+        
+        # Thêm đường đứt nét đứng để dễ so sánh
+        for i in range(1, len(display_df.columns)):
+            fig.add_shape(
+                type="line",
+                x0=i - 0.5,
+                x1=i - 0.5,
+                y0=0,
+                y1=1,
+                line=dict(color="Gray", width=1, dash="dash"),
+                xref="x",
+                yref="paper"
+            )
+        
+        st.plotly_chart(fig, use_container_width=True)
     # Thêm bộ lọc tìm kiếm
     search_term = st.text_input("Tìm kiếm AD_NAME:", "", key='overview_search_input')
     if search_term:
         filtered_ads = grouped_df[grouped_df['ad_name'].str.contains(search_term, case=False)]
         if not filtered_ads.empty:
-            fig2 = px.bar(filtered_ads, y='ad_name', x=['spend', 'revenue', 'profit', 'net_profit'],
-                         title=f'Kết quả tìm kiếm cho "{search_term}"',
-                         barmode='group',
-                         orientation='h')
-            fig2.update_layout(
-                yaxis_title="AD_NAME",
-                xaxis_title="Giá trị",
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
-            )
-            st.plotly_chart(fig2, use_container_width=True)
+            if len(filtered_ads) <= 5:
+                st.table(filtered_ads.style.format({
+                    'spend': '{:,.0f}',
+                    'revenue': '{:,.0f}',
+                    'profit': '{:,.0f}',
+                    'net_profit': '{:,.0f}'
+                }))
+            else:
+                fig2 = px.bar(filtered_ads, y='ad_name', x=['spend', 'revenue', 'profit', 'net_profit'],
+                             title=f'Kết quả tìm kiếm cho "{search_term}"',
+                             barmode='group',
+                             orientation='h')
+                fig2.update_layout(
+                    yaxis_title="AD_NAME",
+                    xaxis_title="Giá trị",
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+                )
+                # Thêm đường đứt nét cho biểu đồ tìm kiếm
+                for i in range(1, len(filtered_ads)):
+                    fig2.add_shape(
+                        type="line",
+                        x0=0,
+                        x1=1,
+                        y0=i - 0.5,
+                        y1=i - 0.5,
+                        line=dict(color="Gray", width=1, dash="dash"),
+                        xref="paper",
+                        yref="y"
+                    )
+                st.plotly_chart(fig2, use_container_width=True)
         else:
             st.warning("Không tìm thấy AD_NAME phù hợp")
 
