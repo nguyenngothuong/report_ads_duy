@@ -63,11 +63,18 @@ UPDATE_INFO = """
 ### 📢 Thông báo quan trọng
 
 - **24/10/2024**: Hệ thống đã chuyển sang sử dụng Supabase để lưu trữ dữ liệu
-- **Bảo trì định kỳ**: Hệ thống sẽ được bảo trì vào 00:00 - 01:00 mỗi Chủ Nhật
-- **Sao lưu dữ liệu**: Dữ liệu được sao lưu tự động hàng ngày lúc 23:00
 """
 
 VERSION_HISTORY = {
+    "v1.0.1": {
+        "date": "25/10/2024",
+        "changes": [
+            "Sửa lỗi hiển thị dữ liệu trên biểu đồ tăng trưởng",
+            "Thay đổi cấu trúc biểu đồ - theo yc của anh Duy",
+            "Thêm guides hướng dẫn sử dụng",
+            "Bổ sung tính năng lọc dữ liệu theo ngày, AD_NAME và các chỉ số",
+        ]
+    },
     "v1.0.0": {
         "date": "24/10/2024",
         "changes": [
