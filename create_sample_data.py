@@ -28,7 +28,7 @@ for _ in range(50):  # Tạo 50 AD_NAME khác nhau
         ad_names.append(ad_name)
 
 # Tạo dữ liệu mẫu
-start_date = datetime(2024, 1, 1)
+start_date = datetime(2024, 10, 10)
 end_date = datetime.now()
 date_range = pd.date_range(start=start_date, end=end_date)
 
@@ -38,7 +38,7 @@ revenue_data = []
 current_time = datetime.now().isoformat()
 
 # Tạo khoảng 10k dòng dữ liệu cho mỗi bảng
-target_rows = 10000
+target_rows = 5000
 daily_entries = target_rows // len(date_range)
 
 for date in date_range:
@@ -76,9 +76,9 @@ for date in date_range:
         })
 
 try:
-    # Xóa dữ liệu cũ
-    supabase.table('spend_table').delete().neq('id', 0).execute()
-    supabase.table('revenue_table').delete().neq('id', 0).execute()
+    # # Xóa dữ liệu cũ
+    # supabase.table('spend_table').delete().neq('id', 0).execute()
+    # supabase.table('revenue_table').delete().neq('id', 0).execute()
 
     # Chèn dữ liệu mới vào bảng
     batch_size = 500

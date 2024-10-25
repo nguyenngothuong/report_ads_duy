@@ -282,31 +282,122 @@ def show_ad_time_series_chart(ad_df, selected_ad_name):
                 'Cột màu xanh dương thể hiện lợi nhuận, cột màu tím thể hiện lợi nhuận ròng.')
 
 def show_pivot_table(df):
-    st.subheader('Bảng Pivot')
-    selected_period = st.selectbox('Chọn khoảng thời gian cho Pivot', [7, 14, 30, 90, 180], key='pivot_period_select')
+    st.subheader('Bảng phân tích chi tiết')
+    selected_period = st.selectbox('Chọn khoảng thời gian phân tích', [7, 14, 30, 90, 180], key='pivot_period_select')
+
+    # Chuyển đổi 'day' sang datetime nếu chưa phải
+    df['day'] = pd.to_datetime(df['day'])
+    
+    # Tính toán khoảng thời gian
+    end_date = df['day'].max()
+    start_date = end_date - pd.Timedelta(days=selected_period)
+    previous_start_date = start_date - pd.Timedelta(days=selected_period)
 
     pivot_data = []
     for ad_name in df['ad_name'].unique():
         ad_df = df[df['ad_name'] == ad_name]
-        row = {'ad_name': ad_name}
-        row.update(calculate_metrics_with_growth(ad_df, selected_period))
+        
+        # Lọc dữ liệu cho khoảng thời gian hiện tại và trước đó
+        current_period_df = ad_df[(ad_df['day'] > start_date) & (ad_df['day'] <= end_date)]
+        previous_period_df = ad_df[(ad_df['day'] > previous_start_date) & (ad_df['day'] <= start_date)]
+        
+        # Tính toán các chỉ số cho khoảng thời gian hiện tại
+        current_metrics = {
+            'spend': current_period_df['spend'].sum(),
+            'revenue': current_period_df['revenue'].sum(),
+            'profit': current_period_df['profit'].sum(),
+            'net_profit': current_period_df['net_profit'].sum()
+        }
+        
+        # Tính toán các chỉ số cho khoảng thời gian trước đó
+        previous_metrics = {
+            'spend': previous_period_df['spend'].sum(),
+            'revenue': previous_period_df['revenue'].sum(),
+            'profit': previous_period_df['profit'].sum(),
+            'net_profit': previous_period_df['net_profit'].sum()
+        }
+        
+        # Tính toán tăng trưởng
+        row = {
+            'ad_name': ad_name,
+            'spend': current_metrics['spend'],
+            'spend_growth': calculate_growth(current_metrics['spend'], previous_metrics['spend']),
+            'revenue': current_metrics['revenue'],
+            'revenue_growth': calculate_growth(current_metrics['revenue'], previous_metrics['revenue']),
+            'profit': current_metrics['profit'],
+            'profit_growth': calculate_growth(current_metrics['profit'], previous_metrics['profit']),
+            'net_profit': current_metrics['net_profit'],
+            'net_profit_growth': calculate_growth(current_metrics['net_profit'], previous_metrics['net_profit'])
+        }
+        
         pivot_data.append(row)
 
     pivot_df = pd.DataFrame(pivot_data)
 
     if pivot_df.empty:
-        st.warning("Không có dữ liệu để hiển thị bảng Pivot")
+        st.warning("Không có dữ liệu để hiển thị bảng phân tích")
         return
 
+    # Đổi tên cột sang tiếng Việt
+    column_names = {
+        'ad_name': 'Tên quảng cáo',
+        'spend': f'Chi phí trong {selected_period} ngày qua',
+        'spend_growth': 'Tăng trưởng chi phí (%)',
+        'revenue': f'Doanh thu trong {selected_period} ngày qua',
+        'revenue_growth': 'Tăng trưởng doanh thu (%)',
+        'profit': f'Lợi nhuận trong {selected_period} ngày qua',
+        'profit_growth': 'Tăng trưởng lợi nhuận (%)',
+        'net_profit': f'Lợi nhuận ròng trong {selected_period} ngày qua',
+        'net_profit_growth': 'Tăng trưởng lợi nhuận ròng (%)'
+    }
+    pivot_df.columns = [column_names.get(col, col) for col in pivot_df.columns]
+
+    # Định dạng các cột
     formatted_columns = {}
     for col in pivot_df.columns:
-        if col != 'ad_name':
-            if 'growth' in col:
+        if col != 'Tên quảng cáo':
+            if 'growth' in col.lower() or 'tăng trưởng' in col.lower():
                 formatted_columns[col] = '{:+.2f}%'
             else:
                 formatted_columns[col] = '{:,.0f} đ'
 
     st.dataframe(pivot_df.style.format(formatted_columns))
+
+    # Thêm giải thích
+    st.markdown(f"""
+    ### Hướng dẫn đọc bảng phân tích:
+    
+    - **Chi phí trong {selected_period} ngày qua**: Tổng chi phí quảng cáo trong khoảng thời gian đã chọn
+    - **Doanh thu trong {selected_period} ngày qua**: Tổng doanh thu từ quảng cáo
+    - **Lợi nhuận trong {selected_period} ngày qua**: Doanh thu trừ chi phí
+    - **Lợi nhuận ròng trong {selected_period} ngày qua**: Lợi nhuận sau khi trừ thuế và các chi phí khác
+    - **Các chỉ số tăng trưởng**: So sánh với {selected_period} ngày trước đó
+        - Giá trị dương (+): Tăng trưởng tốt
+        - Giá trị âm (-): Cần cải thiện
+    """)
+
+    # Thêm biểu đồ tăng trưởng
+    growth_columns = [col for col in pivot_df.columns if 'Tăng trưởng' in col]
+    if not growth_columns:
+        st.warning("Không có dữ liệu tăng trưởng để hiển thị biểu đồ")
+        return
+        
+    growth_data = pivot_df[['Tên quảng cáo'] + growth_columns]
+
+    fig = px.bar(
+        growth_data.melt(
+            id_vars=['Tên quảng cáo'],
+            var_name='Chỉ số',
+            value_name='Tăng trưởng (%)'
+        ),
+        x='Tên quảng cáo',
+        y='Tăng trưởng (%)',
+        color='Chỉ số',
+        title=f'Biểu đồ tăng trưởng trong {selected_period} ngày qua (so với {selected_period} ngày trước đó)',
+        barmode='group'
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
 
 def format_number(number):
     if number >= 1000000:
@@ -315,3 +406,4 @@ def format_number(number):
         return f"{number/1000:.1f}k"
     else:
         return f"{number:.0f}"
+
