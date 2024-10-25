@@ -55,12 +55,16 @@ def show_spend_form():
     
     if st.button("Lưu dữ liệu chi phí"):
         invalid_dates = []
+        empty_fields = []
         for index, row in edited_df.iterrows():
-            if row["day"] and row["ad_name"] and row["spend"]:
-                if not is_valid_date(row["day"]):
-                    invalid_dates.append(index + 1)
+            if not row["day"] or not row["ad_name"] or not row["spend"]:
+                empty_fields.append(index + 1)
+            elif not is_valid_date(row["day"]):
+                invalid_dates.append(index + 1)
         
-        if invalid_dates:
+        if empty_fields:
+            st.error(f"Các trường không được để trống ở (các) dòng: {', '.join(map(str, empty_fields))}.")
+        elif invalid_dates:
             st.error(f"Ngày không hợp lệ ở (các) dòng: {', '.join(map(str, invalid_dates))}. Vui lòng nhập ngày theo định dạng yyyy-mm-dd.")
         else:
             for _, row in edited_df.iterrows():

@@ -36,7 +36,7 @@ def show_overview_report(df):
 
     show_metrics(filtered_df, previous_df)
     show_time_series_chart(filtered_df)
-    show_ad_name_chart(filtered_df)
+    # show_ad_name_chart(filtered_df)
 
 def show_metrics(filtered_df, previous_df):
     col1, col2, col3, col4 = st.columns(4)
@@ -110,19 +110,108 @@ def show_time_series_chart(filtered_df):
         st.info('Biểu đồ trên kết hợp đường và cột để thể hiện sự thay đổi theo thời gian. '
                 'Đường màu đỏ thể hiện chi phí, đường màu xanh lá thể hiện doanh thu. '
                 'Cột màu xanh dương thể hiện lợi nhuận, cột màu tím thể hiện lợi nhuận ròng.')
-
-def show_ad_name_chart(filtered_df):
-    st.subheader('Biểu đồ theo AD_NAME')
-    grouped_df = filtered_df.groupby('ad_name').agg({
-        'spend': 'sum',
-        'revenue': 'sum',
-        'profit': 'sum',
-        'net_profit': 'sum'
-    }).reset_index()
-
-    fig = px.bar(grouped_df, x='ad_name', y=['spend', 'revenue', 'profit', 'net_profit'], 
-                 title='Chỉ số theo AD_NAME', barmode='group')
-    st.plotly_chart(fig, use_container_width=True)
+        
+        
+# def show_ad_name_chart(filtered_df):
+#     st.subheader('Biểu đồ theo AD_NAME')
+    
+#     # Tính tổng theo ad_name
+#     grouped_df = filtered_df.groupby('ad_name').agg({
+#         'spend': 'sum',
+#         'revenue': 'sum', 
+#         'profit': 'sum',
+#         'net_profit': 'sum'
+#     }).reset_index()
+    
+#     # Thêm các filter mẫu
+#     filter_options = [
+#         "Tùy chỉnh",
+#         "Top 10 AD_NAME có lợi nhuận cao nhất",
+#         "Top 10 AD_NAME có doanh thu cao nhất", 
+#         "Top 10 AD_NAME có chi phí thấp nhất",
+#         "Top 10 AD_NAME có ROI tốt nhất",
+#         "Top 10 AD_NAME có lợi nhuận âm"
+#     ]
+    
+#     selected_filter = st.selectbox("Chọn bộ lọc:", filter_options)
+    
+#     if selected_filter == "Tùy chỉnh":
+#         # Cho phép user chọn số lượng top AD_NAME muốn xem
+#         max_ads = len(grouped_df)
+#         default_value = min(20, max_ads)
+#         top_n = st.number_input('Số lượng AD_NAME muốn xem:', min_value=1, max_value=max_ads, value=default_value)
+        
+#         # Thêm thanh kéo để lọc theo revenue
+#         min_revenue = float(grouped_df['revenue'].min())
+#         max_revenue = float(grouped_df['revenue'].max())
+        
+#         if min_revenue == max_revenue:
+#             min_revenue = 0
+#             max_revenue = max(max_revenue, 1000000)
+        
+#         revenue_range = st.slider(
+#             'Lọc theo khoảng Revenue:',
+#             min_value=min_revenue,
+#             max_value=max_revenue,
+#             value=(min_revenue, max_revenue)
+#         )
+        
+#         filtered_by_revenue = grouped_df[
+#             (grouped_df['revenue'] >= revenue_range[0]) & 
+#             (grouped_df['revenue'] <= revenue_range[1])
+#         ]
+#         display_df = filtered_by_revenue.nlargest(top_n, 'revenue')
+#         title = f'Top {top_n} AD_NAME theo Revenue'
+        
+#     else:
+#         if selected_filter == "Top 10 AD_NAME có lợi nhuận cao nhất":
+#             display_df = grouped_df.nlargest(10, 'profit')
+#             title = 'Top 10 AD_NAME có lợi nhuận cao nhất'
+#         elif selected_filter == "Top 10 AD_NAME có doanh thu cao nhất":
+#             display_df = grouped_df.nlargest(10, 'revenue')
+#             title = 'Top 10 AD_NAME có doanh thu cao nhất'
+#         elif selected_filter == "Top 10 AD_NAME có chi phí thấp nhất":
+#             display_df = grouped_df.nsmallest(10, 'spend')
+#             title = 'Top 10 AD_NAME có chi phí thấp nhất'
+#         elif selected_filter == "Top 10 AD_NAME có ROI tốt nhất":
+#             grouped_df['roi'] = (grouped_df['revenue'] - grouped_df['spend']) / grouped_df['spend'] * 100
+#             display_df = grouped_df.nlargest(10, 'roi')
+#             title = 'Top 10 AD_NAME có ROI tốt nhất'
+#         else:  # Top 10 AD_NAME có lợi nhuận âm
+#             display_df = grouped_df[grouped_df['profit'] < 0].nlargest(10, 'spend')
+#             title = 'Top 10 AD_NAME có lợi nhuận âm'
+    
+#     # Tạo biểu đồ ngang
+#     fig = px.bar(display_df, y='ad_name', x=['spend', 'revenue', 'profit', 'net_profit'],
+#                  title=title,
+#                  barmode='group',
+#                  orientation='h')
+    
+#     fig.update_layout(
+#         yaxis_title="AD_NAME",
+#         xaxis_title="Giá trị",
+#         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+#     )
+    
+#     st.plotly_chart(fig, use_container_width=True)
+    
+#     # Thêm bộ lọc tìm kiếm
+#     search_term = st.text_input("Tìm kiếm AD_NAME:", "")
+#     if search_term:
+#         filtered_ads = grouped_df[grouped_df['ad_name'].str.contains(search_term, case=False)]
+#         if not filtered_ads.empty:
+#             fig2 = px.bar(filtered_ads, y='ad_name', x=['spend', 'revenue', 'profit', 'net_profit'],
+#                          title=f'Kết quả tìm kiếm cho "{search_term}"',
+#                          barmode='group',
+#                          orientation='h')
+#             fig2.update_layout(
+#                 yaxis_title="AD_NAME",
+#                 xaxis_title="Giá trị",
+#                 legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+#             )
+#             st.plotly_chart(fig2, use_container_width=True)
+#         else:
+#             st.warning("Không tìm thấy AD_NAME phù hợp")
 
 def format_number(number):
     if number >= 1000000:
